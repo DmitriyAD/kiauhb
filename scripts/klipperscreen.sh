@@ -42,16 +42,19 @@ function install_klipperscreen() {
 }
 
 function klipperscreen_setup() {
+  local branch=${2}
   local dep=(wget curl unzip dfu-util)
   dependency_check "${dep[@]}"
   status_msg "Cloning KlipperScreen from ${KLIPPERSCREEN_REPO} ..."
 
   # force remove existing KlipperScreen dir
   [[ -d ${KLIPPERSCREEN_DIR} ]] && rm -rf "${KLIPPERSCREEN_DIR}"
-
+  [[ -z ${branch} ]] && branch="Z-BOLTUI2"
   # clone into fresh KlipperScreen dir
   cd "${HOME}" || exit 1
-  if ! git clone --depth 1 "${KLIPPERSCREEN_REPO}" "${KLIPPERSCREEN_DIR}"; then
+  if git clone --depth 1 "${KLIPPERSCREEN_REPO}" "${KLIPPERSCREEN_DIR}"; then
+    cd "${KLIPPERSCREEN_DIR}" && git checkout "${branch}"
+  else
     print_error "Cloning KlipperScreen from\n ${KLIPPERSCREEN_REPO}\n failed!"
     exit 1
   fi
@@ -219,7 +222,8 @@ function patch_klipperscreen_update_manager() {
 [update_manager KlipperScreen]
 type: git_repo
 path: ${HOME}/KlipperScreen
-origin: https://github.com/jordanruthe/KlipperScreen.git
+primary_branch: Z-BOLTUI2
+origin: https://github.com/Z-Bolt/KlipperScreen.git
 env: ${HOME}/.KlipperScreen-env/bin/python
 requirements: scripts/KlipperScreen-requirements.txt
 install_script: scripts/KlipperScreen-install.sh
